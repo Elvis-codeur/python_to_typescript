@@ -98,15 +98,25 @@ TYPE_MAP = {
     "PositiveSmallIntegerField": NumberType,
 }
 
-
-
-class ClassRepresentation():
+class RepresentationObject():
     def __init__(self,name) -> None:
         self.name = name
-        self.attributes = []
 
     def __repr__(self) -> str:
-        return "ClassRepresentation({})".format(self.__dict__)
+        return "{}({})".format(self.__class__.__name__,self.__dict__)
+    
+
+class ClassRepresentation(RepresentationObject):
+    def __init__(self, name) -> None:
+        super().__init__(name)
+        self.attributes = []
+        self.functions = []
+
+    
+    
+class FunctionRepresentation(RepresentationObject):
+    def __init__(self, name) -> None:
+        super().__init__(name)
     
 
 def test1():
@@ -135,7 +145,7 @@ def test1():
                                    type_script_object.__dict__["keywords"][keyword.__dict__["arg"]] = keyword.__dict__["value"].__dict__['value']
                                 elif type(keyword.__dict__["value"]) == ast.Name:
                                     type_script_object.__dict__["keywords"]["id"] =  keyword.__dict__["value"].__dict__['id']
-                                    
+
 
                         for arg in class_def.__dict__["value"].__dict__["args"]:
                             type_script_object.__dict__["args"].append(arg.__dict__["value"])
@@ -144,7 +154,35 @@ def test1():
                         cls.attributes.append(type_script_object) 
                 
                 elif type(class_def) == ast.FunctionDef:
-                    print(class_def)
+                    func_object = FunctionRepresentation(class_def.__dict__["name"])
+                    
+                    if class_def.__dict__["returns"]:
+                        returns = class_def.__dict__["returns"]
+                        
+                        if type(returns) == ast.List:
+                            a = 0
+                        elif type(returns) == ast.Set:
+                            a = 0
+                        else:
+                            if type(returns) == ast.Attribute:
+                                func_object.__dict__["returns"] = {
+                                    "type":"attribute",
+                                    "attr": returns.__dict__["attr"]
+                                }
+                            elif type(returns) == ast.Name:
+                                func_object.__dict__["returns"] = {
+                                    "type":"name",
+                                    "id": returns.__dict__["id"]
+                                }
+                    else:
+                        func_object.__dict__["returns"] = {
+                                    "type":"unknown",
+                                }
+                    
+                    cls.functions.append(func_object) 
+                    
+
+                    
             print(cls)
 
 if __name__ == "__main__":
