@@ -113,9 +113,9 @@ class RepresentationObject():
 class ClassRepresentation(RepresentationObject):
     def __init__(self, name) -> None:
         super().__init__(name)
-        self.attributes = []
-        self.functions = []
-        self.subclasses = []
+        self.attributes = {}
+        self.functions = {}
+        self.subclasses = {}
 
     
     
@@ -127,9 +127,9 @@ class FunctionRepresentation(RepresentationObject):
 class FileRepresentation(RepresentationObject):
     def __init__(self, name,path) -> None:
         super().__init__(name)
-        self.classes = []
-        self.functions = []
-        self.imports = []
+        self.classes = {}
+        self.functions = {}
+        self.imports = {}
         self.path = path
 
 
@@ -220,14 +220,15 @@ def analyse_class_def(node:ast.ClassDef):
 
                     
                 
-            cls.attributes.append(type_script_object) 
+            cls.attributes[type_script_object.name] = type_script_object
         
         elif type(class_def) == ast.FunctionDef:
             func_object = analyse_function_def(class_def)
-            cls.functions.append(func_object) 
+            cls.functions[func_object.name] = func_object 
 
         elif type(class_def) == ast.ClassDef:
-            cls.subclasses.append(analyse_class_def(class_def))
+            class_object = analyse_class_def(class_def)
+            cls.subclasses[class_object.name] =  class_object
             
     return cls 
 
@@ -245,10 +246,11 @@ def analyse_file(file_path):
     for node in parsed.body:
         #print(node)
         if type(node) is ast.ClassDef: # Les classes du fichier
-            a = 0
-            result.classes.append(analyse_class_def(node))
+            a = analyse_class_def(node)
+            result.classes[a.name] = a
         elif type(node) == ast.FunctionDef:
-            result.functions.append(analyse_function_def(node))
+            a = analyse_function_def(node)
+            result.functions[a.name] = a
     return result
 
 
