@@ -20,3 +20,10 @@ class ModelTest1(models.Model):
     class Meta:
         model = Mod 
         fields = ["eld","eld"]
+
+
+
+class TestRestFrameWork(models.Model):
+    name = models.CharField()
+    age = models.IntegerField()
+    
